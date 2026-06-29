@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, Pencil, CheckCircle2, Circle, Clock } from "lucide-react";
+import { Plus, Trash2, Pencil, CheckCircle2, Circle, Clock, Ticket } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router";
 
 type TaskStatus = "todo" | "in_progress" | "done";
 type TaskPriority = "low" | "medium" | "high";
@@ -36,9 +37,9 @@ interface Task {
 
 function StatusBadge({ status }: { status: TaskStatus }) {
   const variants: Record<TaskStatus, { label: string; className: string; icon: React.ReactNode }> = {
-    todo: { label: "Todo", className: "bg-slate-100 text-slate-700 hover:bg-slate-200", icon: <Circle className="w-3 h-3 mr-1" /> },
-    in_progress: { label: "In Progress", className: "bg-blue-100 text-blue-700 hover:bg-blue-200", icon: <Clock className="w-3 h-3 mr-1" /> },
-    done: { label: "Done", className: "bg-green-100 text-green-700 hover:bg-green-200", icon: <CheckCircle2 className="w-3 h-3 mr-1" /> },
+    todo: { label: "K udělání", className: "bg-slate-100 text-slate-700 hover:bg-slate-200", icon: <Circle className="w-3 h-3 mr-1" /> },
+    in_progress: { label: "Probíhá", className: "bg-blue-100 text-blue-700 hover:bg-blue-200", icon: <Clock className="w-3 h-3 mr-1" /> },
+    done: { label: "Hotovo", className: "bg-green-100 text-green-700 hover:bg-green-200", icon: <CheckCircle2 className="w-3 h-3 mr-1" /> },
   };
   const v = variants[status];
   return (
@@ -57,7 +58,7 @@ function PriorityBadge({ priority }: { priority: TaskPriority }) {
   };
   return (
     <Badge variant="secondary" className={`${colors[priority]} w-fit capitalize`}>
-      {priority}
+      {priority === "low" ? "Nízká" : priority === "medium" ? "Střední" : "Vysoká"}
     </Badge>
   );
 }
@@ -147,7 +148,7 @@ export default function Home() {
     if (items.length === 0) {
       return (
         <div className="text-center py-12 text-muted-foreground">
-          No tasks yet. Create your first task!
+          Žádné úkoly. Vytvořte svůj první úkol!
         </div>
       );
     }
@@ -202,38 +203,49 @@ export default function Home() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Task Manager
+              Správce úkolů
             </h1>
             <p className="text-muted-foreground mt-1">
-              Organize your work with Neon PostgreSQL + tRPC
+              Organizujte svou práci s Neon PostgreSQL + tRPC
             </p>
           </div>
-          <Button
-            onClick={() => setIsFormOpen(!isFormOpen)}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            New Task
-          </Button>
+          <div className="flex gap-2">
+            <Link to="/tickets">
+              <Button
+                variant="outline"
+                className="border-purple-300 text-purple-700 hover:bg-purple-50"
+              >
+                <Ticket className="w-4 h-4 mr-2" />
+                Vstupenky
+              </Button>
+            </Link>
+            <Button
+              onClick={() => setIsFormOpen(!isFormOpen)}
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Nový úkol
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Todo</CardDescription>
+              <CardDescription>K udělání</CardDescription>
               <CardTitle className="text-3xl">{todoTasks.length}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>In Progress</CardDescription>
+              <CardDescription>Probíhá</CardDescription>
               <CardTitle className="text-3xl text-blue-600">{inProgressTasks.length}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Done</CardDescription>
+              <CardDescription>Hotovo</CardDescription>
               <CardTitle className="text-3xl text-green-600">{doneTasks.length}</CardTitle>
             </CardHeader>
           </Card>
@@ -243,69 +255,69 @@ export default function Home() {
         {isFormOpen && (
           <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
             <CardHeader>
-              <CardTitle>{editingTask ? "Edit Task" : "Create New Task"}</CardTitle>
+              <CardTitle>{editingTask ? "Upravit úkol" : "Vytvořit nový úkol"}</CardTitle>
               <CardDescription>
-                {editingTask ? "Update your task details" : "Add a new task to your list"}
+                {editingTask ? "Aktualizujte detaily úkolu" : "Přidejte nový úkol do seznamu"}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Title</label>
+                  <label className="text-sm font-medium mb-1 block">Název</label>
                   <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter task title..."
+                    placeholder="Zadejte název úkolu..."
                     required
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1 block">Description</label>
+                  <label className="text-sm font-medium mb-1 block">Popis</label>
                   <Textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Add more details..."
+                    placeholder="Přidejte podrobnosti..."
                     rows={3}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Status</label>
+                    <label className="text-sm font-medium mb-1 block">Stav</label>
                     <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="todo">Todo</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="todo">K udělání</SelectItem>
+                        <SelectItem value="in_progress">Probíhá</SelectItem>
+                        <SelectItem value="done">Hotovo</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Priority</label>
+                    <label className="text-sm font-medium mb-1 block">Priorita</label>
                     <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="low">Nízká</SelectItem>
+                        <SelectItem value="medium">Střední</SelectItem>
+                        <SelectItem value="high">Vysoká</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={resetForm}>
-                    Cancel
+                    Zrušit
                   </Button>
                   <Button
                     type="submit"
                     disabled={createTask.isPending || updateTask.isPending}
                     className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
                   >
-                    {editingTask ? "Update Task" : "Create Task"}
+                    {editingTask ? "Uložit změny" : "Vytvořit úkol"}
                   </Button>
                 </div>
               </form>
@@ -317,15 +329,15 @@ export default function Home() {
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto" />
-            <p className="text-muted-foreground mt-2">Loading tasks...</p>
+            <p className="text-muted-foreground mt-2">Načítání úkolů...</p>
           </div>
         ) : (
           <Tabs defaultValue="all" className="w-full">
             <TabsList className="mb-4">
-              <TabsTrigger value="all">All ({tasks?.length ?? 0})</TabsTrigger>
-              <TabsTrigger value="todo">Todo ({todoTasks.length})</TabsTrigger>
-              <TabsTrigger value="in_progress">In Progress ({inProgressTasks.length})</TabsTrigger>
-              <TabsTrigger value="done">Done ({doneTasks.length})</TabsTrigger>
+              <TabsTrigger value="all">Všechny ({tasks?.length ?? 0})</TabsTrigger>
+              <TabsTrigger value="todo">K udělání ({todoTasks.length})</TabsTrigger>
+              <TabsTrigger value="in_progress">Probíhá ({inProgressTasks.length})</TabsTrigger>
+              <TabsTrigger value="done">Hotovo ({doneTasks.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="all">
               <TaskList items={typedTasks} />
@@ -344,7 +356,7 @@ export default function Home() {
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground mt-12 pb-8">
-          Full-Stack App with React + tRPC + Drizzle ORM + Neon PostgreSQL
+          Full-Stack aplikace s React + tRPC + Drizzle ORM + Neon PostgreSQL
         </div>
       </div>
     </div>

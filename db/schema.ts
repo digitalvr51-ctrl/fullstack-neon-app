@@ -2,6 +2,7 @@ import {
   pgTable,
   pgEnum,
   serial,
+  integer,
   varchar,
   text,
   timestamp,
@@ -27,7 +28,7 @@ export const users = pgTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// --- Your tables here ---
+// --- Tasks ---
 
 export const tasks = pgTable("tasks", {
   id: serial("id").primaryKey(),
@@ -45,3 +46,21 @@ export const tasks = pgTable("tasks", {
 
 export type Task = typeof tasks.$inferSelect;
 export type InsertTask = typeof tasks.$inferInsert;
+
+// --- Beat For Love Tickets ---
+
+export const ticketOrders = pgTable("ticket_orders", {
+  id: serial("id").primaryKey(),
+  buyerName: varchar("buyer_name", { length: 255 }).notNull(),
+  buyerEmail: varchar("buyer_email", { length: 320 }),
+  buyerPhone: varchar("buyer_phone", { length: 50 }),
+  quantity: integer("quantity").notNull(),
+  totalPrice: integer("total_price").notNull(),
+  variableSymbol: varchar("variable_symbol", { length: 20 }).notNull(),
+  accountNumber: varchar("account_number", { length: 50 }).default("6256013013/0800").notNull(),
+  status: varchar("status", { length: 50 }).default("pending").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type TicketOrder = typeof ticketOrders.$inferSelect;
+export type InsertTicketOrder = typeof ticketOrders.$inferInsert;
